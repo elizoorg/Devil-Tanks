@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL_rect.h>
+#include <SDL3/SDL.h>
 class Block
 {
 public:
@@ -7,9 +7,9 @@ public:
 	~Block();
 	Block(int x, int y, int a, int b);
 
-	SDL_Rect getRect();
+	SDL_FRect getRect();
 private:
-	SDL_Rect border;
+	SDL_FRect border;
 
 };
 

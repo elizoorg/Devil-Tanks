@@ -17,25 +17,44 @@ EventHandler::EventHandler()
 }
 void EventHandler::Handle(SDL_Event* Event) {
 	switch (Event->type) {
-	case SDL_KEYDOWN: {
-		OnKeyDown(Event->key.keysym.sym, Event->key.keysym.mod);
+		std::cout << "we're here";
+
+	case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+		std::cout << "Button pressed: "
+			<< SDL_GetGamepadStringForButton((SDL_GamepadButton)Event->gbutton.button)
+			<< "\n";
+		break;
+
+	case SDL_EVENT_GAMEPAD_BUTTON_UP:
+		std::cout << "Button released: "
+			<< SDL_GetGamepadStringForButton((SDL_GamepadButton)Event->gbutton.button)
+			<< "\n";
+		break;
+
+	case SDL_EVENT_GAMEPAD_AXIS_MOTION:
+		std::cout << "Axis moved: "
+			<< SDL_GetGamepadStringForAxis((SDL_GamepadAxis)Event->gaxis.axis)
+			<< " Value: " << Event->gaxis.value << "\n";
+		break;
+	case SDL_EVENT_KEY_DOWN: {
+		OnKeyDown(Event->key.key, Event->key.mod);
 		break;
 	}
-	case SDL_KEYUP: {
-		OnKeyUp(Event->key.keysym.sym, Event->key.keysym.mod);
+	case SDL_EVENT_KEY_UP: {
+		OnKeyUp(Event->key.key, Event->key.mod);
 		break;
 	}
 
-	case SDL_MOUSEMOTION: {
+	case SDL_EVENT_MOUSE_MOTION: {
 		OnMouseMove(Event->motion.x, Event->motion.y,
 			Event->motion.xrel, Event->motion.yrel,
-			(Event->motion.state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0,
-			(Event->motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0,
-			(Event->motion.state & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0);
+			(Event->motion.state & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) != 0,
+			(Event->motion.state & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)) != 0,
+			(Event->motion.state & SDL_BUTTON_MASK(SDL_BUTTON_MIDDLE)) != 0);
 		break;
 	}
 
-	case SDL_MOUSEBUTTONDOWN: {
+	case SDL_EVENT_MOUSE_BUTTON_DOWN: {
 		switch (Event->button.button) {
 		case SDL_BUTTON_LEFT: {
 			OnLButtonDown(Event->button.x, Event->button.y);
@@ -53,7 +72,7 @@ void EventHandler::Handle(SDL_Event* Event) {
 		break;
 	}
 
-	case SDL_MOUSEBUTTONUP: {
+	case SDL_EVENT_MOUSE_BUTTON_UP: {
 		switch (Event->button.button) {
 		case SDL_BUTTON_LEFT: {
 			OnLButtonUp(Event->button.x, Event->button.y);
@@ -70,27 +89,30 @@ void EventHandler::Handle(SDL_Event* Event) {
 		}
 		break;
 	}
-	case SDL_MOUSEWHEEL: {
+	case SDL_EVENT_MOUSE_WHEEL: {
 		OnMouseWheel(Event->wheel.y);
 		break;
 	}
-	case SDL_JOYAXISMOTION: {
+	case SDL_EVENT_JOYSTICK_AXIS_MOTION: {
 		OnJoyAxis(Event->jaxis.which, Event->jaxis.axis, Event->jaxis.value);
 		break;
 	}
-	case SDL_JOYHATMOTION: {
+	case SDL_EVENT_JOYSTICK_HAT_MOTION: {
+		std::cout << "we're here 3\n";
 		OnJoyHat(Event->jhat.which, Event->jhat.hat, Event->jhat.value);
 		break;
 	}
-	case SDL_JOYBUTTONDOWN: {
+	case SDL_EVENT_JOYSTICK_BUTTON_DOWN: {
+		std::cout << "we're here 1\n";
 		OnJoyButtonDown(Event->jbutton.which, Event->jbutton.button);
 		break;
 	}
-	case SDL_JOYBUTTONUP: {
+	case SDL_EVENT_JOYSTICK_BUTTON_UP: {
+		std::cout << "we're here 2\n";
 		OnJoyButtonUp(Event->jbutton.which, Event->jbutton.button);
 		break;
 	}
-	case SDL_QUIT: {
+	case SDL_EVENT_QUIT: {
 		break;
 	}
 	}
@@ -108,8 +130,10 @@ void EventHandler::OnMButtonDown(int mX, int mY) { mouse_down[SDL_BUTTON_MIDDLE]
 void EventHandler::OnMButtonUp(int mX, int mY) { mouse_down[SDL_BUTTON_MIDDLE] = false; setMousePos(mX, mY); }
 void EventHandler::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value)
 {
+
+
 	switch (which) {
-	case 0:
+	case 2:
 			if(axis==LX11)Stick1Pos.x = value; 
 			if(axis==LY11)Stick1Pos.y = value; 
 			if (axis == LX12)Stick2Pos.x = value;
@@ -125,15 +149,32 @@ void EventHandler::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value)
 }
 
 void EventHandler::OnJoyButtonDown(Uint8 which, Uint8 button) {
-	if (!which) button_down[button] = true; else  button2_down[button] = true;
+	int _which = which;
+	std::cout << "which is " << _which << "\n";
+	int _button = button;
+	std::cout << "button is " << _button << "\n";
+	if (_which) button_down[_button] = true; else  button2_down[_button] = true;
 }
-void EventHandler::OnJoyButtonUp(Uint8 which, Uint8 button) { if (!which) button_down[button] = false; else button2_down[button] = false; }
+void EventHandler::OnJoyButtonUp(Uint8 which, Uint8 button) { 
+	
+	int _which = which;
+	std::cout << "which is " << _which << "\n";
+	int _button = button;
+	std::cout << "button is " << _button << "\n";
+	if (_which) button_down[_button] = false; else  button2_down[_button] = false;
+
+
+}
 void EventHandler::OnJoyHat(Uint8 which, Uint8 hat, Uint8 value) { cout << (int)  value << endl; }
 bool EventHandler::KeyDown(SDL_Keycode keycode) { return keys_down[keycode]; }
 vec2i EventHandler::GetMousePos(){return MousePos;}
 bool EventHandler::MouseDown(Uint8 mouse){return mouse_down[mouse];}
 bool EventHandler::ButtonDown(Uint8 button) { return button_down[button]; }
 bool EventHandler::Button2ndDown(Uint8 button){return button2_down[button];}
+bool EventHandler::HatDown(Uint8 button)
+{
+	return false;
+}
 vec2i EventHandler::GetStick1Pos(){return Stick1Pos;}
 vec2i EventHandler::GetStick2Pos() { return Stick2Pos; }
 vec2i EventHandler::GetStick21Pos() { return Stick21Pos; }
@@ -143,13 +184,13 @@ vec2i EventHandler::Get2ndTriggerPos() { return Trigger2; }
 short EventHandler::getMouseShift(){return shift;}
 void EventHandler::setMapping()
 {
-	LX11 = cplayer1.getAxis(SDL_CONTROLLER_AXIS_LEFTX);
-	LY11 = cplayer1.getAxis(SDL_CONTROLLER_AXIS_LEFTY);
-	LX12 = cplayer1.getAxis(SDL_CONTROLLER_AXIS_RIGHTX);
-	LY12 = cplayer1.getAxis(SDL_CONTROLLER_AXIS_RIGHTY);
-	LX21 = cplayer2.getAxis(SDL_CONTROLLER_AXIS_LEFTX);
-	LY21 = cplayer2.getAxis(SDL_CONTROLLER_AXIS_LEFTY);
-	LX22 = cplayer2.getAxis(SDL_CONTROLLER_AXIS_RIGHTX);
-	LY22 = cplayer2.getAxis(SDL_CONTROLLER_AXIS_RIGHTY);
+	LX11 = cplayer1.getAxis(SDL_GAMEPAD_AXIS_LEFTX);
+	LY11 = cplayer1.getAxis(SDL_GAMEPAD_AXIS_LEFTY);
+	LX12 = cplayer1.getAxis(SDL_GAMEPAD_AXIS_RIGHTX);
+	LY12 = cplayer1.getAxis(SDL_GAMEPAD_AXIS_RIGHTY);
+	LX21 = cplayer2.getAxis(SDL_GAMEPAD_AXIS_LEFTX);
+	LY21 = cplayer2.getAxis(SDL_GAMEPAD_AXIS_LEFTY);
+	LX22 = cplayer2.getAxis(SDL_GAMEPAD_AXIS_RIGHTX);
+	LY22 = cplayer2.getAxis(SDL_GAMEPAD_AXIS_RIGHTY);
 }
 inline void EventHandler::setMousePos(Uint8 x, Uint8 y){MousePos.x = x; MousePos.y = y;}

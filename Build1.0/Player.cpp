@@ -27,7 +27,7 @@ void Player::setPos(int x,int y)
 	border.y = y;
 }
 
-SDL_Rect Player::getRect() const
+SDL_FRect Player::getRect() const
 {
 	return border;
 }

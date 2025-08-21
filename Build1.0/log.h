@@ -1,14 +1,19 @@
 #pragma once
 #include <iostream>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 using namespace std;
 
 ostream& operator<<(ostream& os, const SDL_Rect& rect) {
+    os << rect.x << " " << rect.y << " " << rect.w << " " << rect.h << endl;
+    return os;
+}
+
+ostream& operator<<(ostream& os, const SDL_FRect& rect) {
 	os << rect.x << " " << rect.y << " " << rect.w << " " << rect.h << endl;
 	return os;
 }
 
-bool check_collision(SDL_Rect A, SDL_Rect B)
+bool check_collision(SDL_FRect A, SDL_FRect B)
 {
     
     int leftA, leftB;
@@ -50,7 +55,7 @@ bool check_collision(SDL_Rect A, SDL_Rect B)
 }
 
 
-int check_bcollision(SDL_Rect A, SDL_Rect B)
+int check_bcollision(SDL_FRect A, SDL_FRect B)
 {
 
     int leftA, leftB;

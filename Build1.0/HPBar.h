@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL.h>
+#include <SDL3/SDL.h>
 struct mColor {
 	short r;
 	short g;
@@ -11,7 +11,7 @@ class HPBar
 {
 public:
 	HPBar();
-	HPBar(int x, int y, int a, int b) { border = SDL_Rect{ x,y,a,b }; }
+	HPBar(int x, int y, int a, int b) { border = SDL_FRect{ (float)x,(float)y,(float)a,(float)b }; }
 	~HPBar();
 	void Draw(SDL_Renderer* render);
 	void setColor(int r, int g, int b, int r1, int g1, int b1) {
@@ -22,7 +22,7 @@ public:
 private:
 	mColor cBorder;
 	mColor cBar;
-	SDL_Rect border;
+	SDL_FRect border;
 	int mHP;
 };
 

@@ -16,7 +16,7 @@ Block::Block(int x, int y, int a, int b)
 	border.h = b;
 }
 
-SDL_Rect Block::getRect()
+SDL_FRect Block::getRect()
 {
 	return border;
 }

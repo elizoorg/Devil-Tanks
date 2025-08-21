@@ -22,10 +22,20 @@ MyGame::~MyGame()
 
 void MyGame::Init()
 {
-	SDL_Init(SDL_INIT_EVERYTHING);
-	IMG_Init(IMG_INIT_PNG);
-	window = SDL_CreateWindow("MainWindow", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
-	mRender = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0) {
+		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+		return;
+	}
+
+	 if (!SDL_CreateWindowAndRenderer("Hello World", width, height, 0, &window, &mRender)) {
+        SDL_Log("Couldn't create window and renderer: %s\n", SDL_GetError());
+		return;
+    }
+
+
+	
+	/*window = SDL_CreateWindow("MainWindow", width, height, SDL_WINDOWPOS_CENTERED);
+	mRender = SDL_CreateRenderer(window, 0);*/
 	player = new Player(100, 400, 64, 64);
 	player2 = new Player(1780, 720, 64, 64);
 	block.push_back(new Block(0, 90, 74, 990));
@@ -52,50 +62,50 @@ void MyGame::Init()
 
 	SDL_Surface* test1 = IMG_Load("crosshair.png");
 	if (!test1) {
-		printf("Unable to load image %s! SDL_image Error: %s\n", "bull.png", IMG_GetError());
+		printf("Unable to load image %s! SDL_image Error: %s\n", "crosshair.png", SDL_GetError());
 	}
 	crosshair = SDL_CreateTextureFromSurface(mRender, test1);
-	SDL_FreeSurface(test1);
+	SDL_DestroySurface(test1);
 
 	test1 = IMG_Load("t1.png");
 	if (!test1) {
-		printf("Unable to load image %s! SDL_image Error: %s\n", "bull.png", IMG_GetError());
+		printf("Unable to load image %s! SDL_image Error: %s\n", "t1.png", SDL_GetError());
 	}
 	tank1 = SDL_CreateTextureFromSurface(mRender, test1);
-	SDL_FreeSurface(test1);
+	SDL_DestroySurface(test1);
 
 	test1 = IMG_Load("d1.png");
 	if (!test1) {
-		printf("Unable to load image %s! SDL_image Error: %s\n", "bull.png", IMG_GetError());
+		printf("Unable to load image %s! SDL_image Error: %s\n", "d1.png", SDL_GetError());
 	}
 	dylo1 = SDL_CreateTextureFromSurface(mRender, test1);
-	SDL_FreeSurface(test1);
+	SDL_DestroySurface(test1);
 
 	test1 = IMG_Load("t2.png");
 	if (!test1) {
-		printf("Unable to load image %s! SDL_image Error: %s\n", "bull.png", IMG_GetError());
+		printf("Unable to load image %s! SDL_image Error: %s\n", "t2.png", SDL_GetError());
 	}
 	tank2 = SDL_CreateTextureFromSurface(mRender, test1);
-	SDL_FreeSurface(test1);
+	SDL_DestroySurface(test1);
 
 	test1 = IMG_Load("d2.png");
 	if (!test1) {
-		printf("Unable to load image %s! SDL_image Error: %s\n", "bull.png", IMG_GetError());
+		printf("Unable to load image %s! SDL_image Error: %s\n", "d2.png", SDL_GetError());
 	}
 	dylo2 = SDL_CreateTextureFromSurface(mRender, test1);
-	SDL_FreeSurface(test1);
+	SDL_DestroySurface(test1);
 	test1 = IMG_Load("fon.png");
 	if (!test1) {
-		printf("Unable to load image %s! SDL_image Error: %s\n", "bull.png", IMG_GetError());
+		printf("Unable to load image %s! SDL_image Error: %s\n", "fon.png", SDL_GetError());
 	}
 	pole = SDL_CreateTextureFromSurface(mRender, test1);
 
 	test1 = IMG_Load("menu.png");
 	if (!test1) {
-		printf("Unable to load image %s! SDL_image Error: %s\n", "bull.png", IMG_GetError());
+		printf("Unable to load image %s! SDL_image Error: %s\n", "menu.png", SDL_GetError());
 	}
 	menu = SDL_CreateTextureFromSurface(mRender, test1);
-	SDL_FreeSurface(test1);
+	SDL_DestroySurface(test1);
 
 	SDL_ShowWindow(window);
 }
@@ -120,7 +130,7 @@ void MyGame::Loop()
 {
 	timer_->Update();
 	while (SDL_PollEvent(&event)) {
-		if (event.type == SDL_QUIT) _end = false;
+		if (event.type == SDL_EVENT_QUIT) _end = false;
 		handler->Handle(&event);
 	}
 	if (timer_->DeltaTime() >= 1.0f / FRAME_RATE) {
@@ -134,7 +144,7 @@ void MyGame::Loop()
 }
 
 void MyGame::Update() {
-	if (handler->KeyDown(SDLK_ESCAPE) || handler->ButtonDown(cplayer1.getButton(SDL_CONTROLLER_BUTTON_START)) || handler->Button2ndDown(cplayer2.getButton(SDL_CONTROLLER_BUTTON_START))) _end = false;
+	if (handler->KeyDown(SDLK_ESCAPE) || handler->ButtonDown(cplayer1.getButton(SDL_GAMEPAD_BUTTON_START)) || handler->Button2ndDown(cplayer2.getButton(SDL_GAMEPAD_BUTTON_START))) _end = false;
 
 	if (handler->GetStick2Pos().x > 8000 || handler->GetStick2Pos().x < -8000)
 	{
@@ -231,13 +241,13 @@ void MyGame::Update() {
 
 	bar.setHP(player->getHP());
 	bar2.setHP(player2->getHP());
-	if (handler->ButtonDown(cplayer1.getButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER)) && d1 > 20) {
+	if (handler->ButtonDown(cplayer1.getButton(SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER)) && d1 > 20) {
 		d1 = 0;
 		bull.setPos(player->getPos() + 18);
 		bull.setVel(aimnorm * -1);
 		bullets.push_back(new Bullet(bull));
 	}
-	if (handler->Button2ndDown(cplayer2.getButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER)) && d2 > 20) {
+	if (handler->Button2ndDown(cplayer2.getButton(SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER)) && d2 > 20) {
 		d2 = 0;
 		bull.setPos(player2->getPos() + 18);
 		bull.setVel(aimnorm2 * -1);
@@ -249,7 +259,7 @@ void MyGame::Update() {
 		bullets[t]->Move();
 	for (auto& blocks : block)
 		for (size_t t = 0; t < bullets.size(); t++) {
-			s = check_bcollision(blocks->getRect(), SDL_Rect{ bullets[t]->getPos().x,bullets[t]->getPos().y,30,30 });
+			s = check_bcollision(blocks->getRect(), SDL_FRect{ (float)bullets[t]->getPos().x,(float)bullets[t]->getPos().y,30,30 });
 			if (s)
 				bullets[t]->Coll(s);
 		}
@@ -261,7 +271,7 @@ void MyGame::Update() {
 		bullets2[t]->Move();
 	for (auto& blocks : block)
 		for (size_t t = 0; t < bullets2.size(); t++) {
-			s = check_bcollision(blocks->getRect(), SDL_Rect{ bullets2[t]->getPos().x,bullets2[t]->getPos().y,30,30 });
+			s = check_bcollision(blocks->getRect(), SDL_FRect{ (float)bullets2[t]->getPos().x,(float)bullets2[t]->getPos().y,30,30 });
 			if (s)
 				bullets2[t]->Coll(s);
 		}
@@ -314,20 +324,20 @@ void MyGame::Update() {
 void MyGame::Render() {
 	SDL_SetRenderDrawColor(mRender, 0, 0, 0, 0);
 	SDL_RenderClear(mRender);
-	SDL_RenderCopy(mRender, pole, 0, 0);
+	SDL_RenderTexture(mRender, pole, 0, 0);
 	SDL_SetRenderDrawColor(mRender, 255, 0, 0, 0);
 
-	SDL_RenderCopyEx(mRender, tank1, 0, &player->getRect(), ang1, NULL, SDL_FLIP_NONE);
-	SDL_RenderCopyEx(mRender, dylo1, 0, &player->getRect(), ang2, NULL, SDL_FLIP_NONE);
-	SDL_RenderCopyEx(mRender, tank2, 0, &player2->getRect(), ang3, NULL, SDL_FLIP_NONE);
-	SDL_RenderCopyEx(mRender, dylo2, 0, &player2->getRect(), ang4, NULL, SDL_FLIP_NONE);
+	SDL_RenderTextureRotated(mRender, tank1, 0, &player->getRect(), ang1, NULL, SDL_FLIP_NONE);
+	SDL_RenderTextureRotated(mRender, dylo1, 0, &player->getRect(), ang2, NULL, SDL_FLIP_NONE);
+	SDL_RenderTextureRotated(mRender, tank2, 0, &player2->getRect(), ang3, NULL, SDL_FLIP_NONE);
+	SDL_RenderTextureRotated(mRender, dylo2, 0, &player2->getRect(), ang4, NULL, SDL_FLIP_NONE);
 
 	SDL_SetRenderDrawColor(mRender, 0, 0, 255, 0);
 
-	SDL_RenderDrawRect(mRender, &aimrect);
-	SDL_RenderDrawRect(mRender, &aimrect2);
-	SDL_RenderCopy(mRender, crosshair, 0, &aimrect);
-	SDL_RenderCopy(mRender, crosshair, 0, &aimrect2);
+	SDL_RenderRect(mRender, &aimrect);
+	SDL_RenderRect(mRender, &aimrect2);
+	SDL_RenderTexture(mRender, crosshair, 0, &aimrect);
+	SDL_RenderTexture(mRender, crosshair, 0, &aimrect2);
 	SDL_SetRenderDrawColor(mRender, 255, 0, 0, 0);
 	for (size_t t = 0; t < bullets.size(); t++)
 		bullets[t]->Draw(mRender);
@@ -343,35 +353,71 @@ void MyGame::Render() {
 
 void MyGame::CheckControllers()
 {
-	SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-	gGameController = SDL_JoystickOpen(0);
-	controller = SDL_GameControllerOpen(0);
+	/*SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+	gGameController = SDL_OpenJoystick(0);
+	controller = SDL_OpenGamepad(0);
 	if (controller) cplayer1.Init(controller);
-	gGameController1 = SDL_JoystickOpen(1);
-	controller1 = SDL_GameControllerOpen(1);
+	gGameController1 = SDL_OpenJoystick(1);
+	controller1 = SDL_OpenGamepad(1);
 	if (controller1) cplayer2.Init(controller1);
+	handler->setMapping();*/
+
+	if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
+		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) != 0) {
+			std::cerr << "Failed to initialize gamepad subsystem: " << SDL_GetError() << std::endl;
+		}
+	}
+
+	SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+
+
+	int count = 0;
+	SDL_JoystickID* ids = SDL_GetGamepads(&count);
+	SDL_Gamepad* gamepad = NULL;
+
+	// Iterate over the list of gamepads
+	for (int i = 0; i < count; i++) {
+		SDL_Gamepad* gamepd = SDL_OpenGamepad(ids[i]);
+		if (gamepad == NULL) {
+			controller = gamepd;
+		}
+
+		//std::cout << "Gamepad connected: " << SDL_GetGamepadName(gamepd) << "\n";
+
+		// Close the other gamepads
+		if (i > 0) {
+			SDL_CloseGamepad(gamepd);
+		}
+	}
+	if (!controller) {
+		std::cerr << "Failed to open gamepad: " << SDL_GetError() << "\n";
+	}
+
+	if (controller) cplayer1.Init(controller);
 	handler->setMapping();
+
 }
 
 bool MyGame::MainMenu()
 {
 	bool isExit = false;
-	SDL_RenderCopy(mRender, menu, 0, 0);
+	SDL_RenderTexture(mRender, menu, 0, 0);
 	SDL_RenderPresent(mRender);
-
+	CheckControllers();
 	while (!isExit) {
 		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_QUIT) _end = false;
+			if (event.type == SDL_EVENT_QUIT) _end = false;
 			handler->Handle(&event);
 		}
-		CheckControllers();
+		
+		//std::cout << handler->ButtonDown(SDL_GAMEPAD_BUTTON_START) << "\n";
 
-		if (handler->ButtonDown(cplayer1.getButton(SDL_CONTROLLER_BUTTON_A))) return false;
-		if (handler->Button2ndDown(cplayer2.getButton(SDL_CONTROLLER_BUTTON_A))) return false;
-		if (handler->ButtonDown(cplayer1.getButton(SDL_CONTROLLER_BUTTON_X))) return false;
-		if (handler->Button2ndDown(cplayer2.getButton(SDL_CONTROLLER_BUTTON_X))) return false;
-		if (handler->ButtonDown(cplayer1.getButton(SDL_CONTROLLER_BUTTON_START))) return true;
-		if (handler->Button2ndDown(cplayer2.getButton(SDL_CONTROLLER_BUTTON_START))) return true;
+		if (handler->ButtonDown(cplayer1.getButton(SDL_GAMEPAD_BUTTON_SOUTH))) return false;
+		if (handler->Button2ndDown(cplayer2.getButton(SDL_GAMEPAD_BUTTON_SOUTH))) return false;
+		if (handler->ButtonDown(cplayer1.getButton(SDL_GAMEPAD_BUTTON_WEST))) return false;
+		if (handler->Button2ndDown(cplayer2.getButton(SDL_GAMEPAD_BUTTON_WEST))) return false;
+		if (handler->ButtonDown(cplayer1.getButton(SDL_GAMEPAD_BUTTON_START))) return true;
+		if (handler->Button2ndDown(cplayer2.getButton(SDL_GAMEPAD_BUTTON_START))) return true;
 	}
 	return false;
 }
@@ -383,10 +429,10 @@ void MyGame::EndGame(int a)
 	SDL_Surface* test1 = IMG_Load(os.str().c_str());
 	os.str("");
 	if (!test1) {
-		printf("Unable to load image %s! SDL_image Error: %s\n", "bull.png", IMG_GetError());
+		printf("Unable to load image %s! SDL_image Error: %s\n", "bull.png", SDL_GetError());
 	}
 	endGame = SDL_CreateTextureFromSurface(mRender, test1);
-	SDL_RenderCopy(mRender, endGame, 0, 0);
+	SDL_RenderTexture(mRender, endGame, 0, 0);
 	SDL_RenderPresent(mRender);
 	SDL_Delay(5000);
 }

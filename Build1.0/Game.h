@@ -1,6 +1,6 @@
 #pragma once
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #include "Control.h"
 #include "Timer.h"
 #include "Player.h"
@@ -43,7 +43,7 @@ private:
 	vec2f dur2;
 	vec2f durnorm2;
 
-	SDL_Rect aimrect2;
+	SDL_FRect aimrect2;
 
 	int d1;
 	int d2;
@@ -56,8 +56,8 @@ private:
 	vector <Bullet*> bullets2;
 	HPBar bar{ 25, 25, 300, 50 };
 	HPBar bar2{ 1595,25,300,50 };
-	SDL_Rect plat;
-	SDL_Rect aimrect;
+	SDL_FRect plat;
+	SDL_FRect aimrect;
 
 	SDL_Window* window;
 	SDL_Renderer* mRender;
@@ -79,10 +79,12 @@ private:
 	SDL_Texture* pole;
 	SDL_Texture* endGame;
 
+	std::vector<SDL_Gamepad*> gamepads;
+
 	SDL_Joystick* gGameController = NULL;
 	SDL_Joystick* gGameController1 = NULL;
-	SDL_GameController* controller = NULL;
-	SDL_GameController* controller1 = NULL;
+	SDL_Gamepad* controller = NULL;
+	SDL_Gamepad* controller1 = NULL;
 
 
 	bool isEndless = false;

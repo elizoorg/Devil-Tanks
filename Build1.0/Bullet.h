@@ -1,6 +1,6 @@
 #pragma once
 #include "vector.h"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #define velocity 20 ;
 class Bullet
@@ -16,7 +16,7 @@ public:
 	int getColl() { return coll; };
 	void setAngle(int ang) { angle = ang; }
 	vec2i getPos() { return posit; }
-	SDL_Rect getRect(){ return pos; };
+	SDL_FRect getRect(){ return pos; };
 	void Move();
 	void Draw(SDL_Renderer* render);
 private:	
@@ -24,7 +24,7 @@ private:
 	int coll;
 	int angle;
 	vec2f velos;
-	SDL_Rect pos;
+	SDL_FRect pos;
 	SDL_Texture* text1;
 };
 
